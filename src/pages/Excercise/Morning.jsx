@@ -422,7 +422,7 @@ const Morning = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a148c4] to-[#4848c4] mb-0">
-            Squats Trainer
+            Morning March
           </h1>
           <Link to="/" className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
             Back to Menu
@@ -473,7 +473,7 @@ const Morning = () => {
             </div>
             
             <div>
-              <h2 className="text-xl font-bold mb-3">Tips for Squats</h2>
+              <h2 className="text-xl font-bold mb-3">Tips for Morning March</h2>
               <ul className="list-disc pl-5 space-y-2 text-gray-300">
                 <li>Position camera to see your lower body</li>
                 <li>Feet shoulder-width apart</li>
@@ -520,7 +520,7 @@ const Morning = () => {
                     <div className="absolute top-4 right-4 z-20">
                       <div className="bg-black/60 text-white px-4 py-2 rounded-lg">
                         <span className="text-3xl font-bold">{exerciseCount}</span>
-                        <span className="ml-2">Squats</span>
+                        <span className="ml-2">Morning March</span>
                       </div>
                     </div>
                     
@@ -576,17 +576,7 @@ const Morning = () => {
               
               {/* Quick Guide */}
               <div className="mt-6 bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-lg font-bold mb-2">Perfect Squat Form</h3>
-                <div className="space-y-2 text-sm text-gray-300">
-                  <p>• Stand with feet slightly wider than hip-width apart</p>
-                  <p>• Toes slightly turned out, weight in heels</p>
-                  <p>• Keep your chest up and shoulders back</p>
-                  <p>• Engage your core throughout the movement</p>
-                  <p>• Push hips back and down as if sitting in a chair</p>
-                  <p>• Lower until thighs are at least parallel to floor</p>
-                  <p>• Keep knees in line with toes (don't collapse inward)</p>
-                  <p>• Push through heels to return to standing position</p>
-                </div>
+                
               </div>
             </div>
           </div>

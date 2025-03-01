@@ -169,7 +169,7 @@ const Frontraises = () => {
     } else if (countingStateRef.current === 'down' && normalizedDist > upThreshold) {
       countingStateRef.current = 'up';
       setExerciseCount(prev => prev + 1);
-      setFeedback('Pull-up completed! Great job!');
+      setFeedback('Front-Raises completed! Great job!');
     }
   };
 
@@ -264,7 +264,7 @@ const Frontraises = () => {
   // Manual tracking functions
   const handleManualCount = () => {
     setExerciseCount(prev => prev + 1);
-    setFeedback(`Pull-up counted!`);
+    setFeedback(`Front-Raises counted!`);
   };
 
   const toggleTracking = () => {
@@ -339,7 +339,7 @@ const Frontraises = () => {
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-[#48c4a4] mb-6">
-          Pull-ups Tracker
+        Front-Raises Tracker
         </h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -351,7 +351,7 @@ const Frontraises = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-700 rounded-lg p-3 text-center">
                   <p className="text-sm text-gray-400">Exercise</p>
-                  <p className="text-xl font-bold text-blue-400">Pull-ups</p>
+                  <p className="text-xl font-bold text-blue-400">Front-Raises</p>
                 </div>
                 
                 <div className="bg-gray-700 rounded-lg p-3 text-center">
@@ -388,7 +388,7 @@ const Frontraises = () => {
                     onClick={handleManualCount}
                     className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-bold transition-colors mt-4"
                   >
-                    Count Pull-ups Manually
+                    Count Front-Raises Manually
                   </button>
                 )}
               </div>
@@ -443,7 +443,7 @@ const Frontraises = () => {
                     <div className="absolute top-4 right-4 z-20">
                       <div className="bg-black/60 text-white px-4 py-2 rounded-lg">
                         <span className="text-3xl font-bold">{exerciseCount}</span>
-                        <span className="ml-2">Pull-ups</span>
+                        <span className="ml-2">Front-Raises</span>
                       </div>
                     </div>
                     
