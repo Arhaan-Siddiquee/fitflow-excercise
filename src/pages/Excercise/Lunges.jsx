@@ -17,29 +17,24 @@ const Lunges = () => {
     const [detector, setDetector] = useState(null);
     const [exercise, setExercise] = useState('Lunges');
 
-    // References for exercise tracking
     const poseHistoryRef = useRef([]);
     const countingStateRef = useRef('up');
     const confidenceThresholdRef = useRef(0.5);
     const frameCountRef = useRef(0);
-    const lastRepTimeRef = useRef(0); // Prevent multiple counts in short time
-    const stateStabilityCounterRef = useRef(0); // For counting stability
-
-    // Load TF and PoseNet models
+    const lastRepTimeRef = useRef(0); 
+    const stateStabilityCounterRef = useRef(0);
     useEffect(() => {
         const loadModels = async () => {
             try {
                 setLoadingState('models');
                 setLoadingProgress(10);
 
-                // Load TensorFlow.js
                 await tf.ready();
                 setLoadingProgress(30);
 
-                // Switch to BlazePose for better accuracy
                 const detectorConfig = {
                     runtime: 'tfjs',
-                    modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER, // Use Thunder for more accuracy
+                    modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER, 
                     enableSmoothing: true
                 };
 
@@ -61,8 +56,6 @@ const Lunges = () => {
 
         loadModels();
     }, []);
-
-    // Setup webcam with better error handling
     useEffect(() => {
         const setupCamera = async () => {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -89,8 +82,6 @@ const Lunges = () => {
                         videoRef.current.play();
                         setIsWebcamReady(true);
                         setLoadingProgress(80);
-
-                        // Initialize canvas
                         if (canvasRef.current) {
                             canvasRef.current.width = videoRef.current.videoWidth;
                             canvasRef.current.height = videoRef.current.videoHeight;
@@ -119,15 +110,12 @@ const Lunges = () => {
         };
     }, []);
 
-    // Start pose detection and tracking when everything is ready
     useEffect(() => {
         if (isWebcamReady && detector && loadingState !== 'ready') {
             setLoadingState('ready');
             setLoadingProgress(100);
         }
     }, [isWebcamReady, detector, loadingState]);
-
-    // Main pose detection and exercise counting logic
     useEffect(() => {
         if (!isTracking || !detector || !isWebcamReady || !canvasRef.current) return;
 
@@ -137,13 +125,8 @@ const Lunges = () => {
             if (!videoRef.current || !canvasRef.current) return;
 
             try {
-                // Process every frame for better accuracy
                 frameCountRef.current += 1;
-
-                // Detect poses
                 const poses = await detector.estimatePoses(videoRef.current);
-
-                // Process the detected pose
                 if (poses && poses.length > 0) {
                     const pose = poses[0];
                     processExercise(pose);
@@ -166,28 +149,17 @@ const Lunges = () => {
             }
         };
     }, [isTracking, detector, isWebcamReady, exercise]);
-
-    // Process the detected pose and count exercises
     const processExercise = (pose) => {
         if (!pose || !pose.keypoints) return;
-
-        // Add current pose to history
         poseHistoryRef.current.push(pose);
-
-        // Keep only the last 15 frames for better stability
         if (poseHistoryRef.current.length > 15) {
             poseHistoryRef.current.shift();
         }
-
-        // Process based on exercise type
         if (exercise === 'Lunges') {
             countSquats(pose);
         }
     };
-
-    // Improved squat counting logic
     const countSquats = (pose) => {
-        // Get relevant keypoints
         const findKeypoint = (name) => pose.keypoints.find(kp => kp.name === name);
 
         const leftHip = findKeypoint('left_hip');
@@ -197,7 +169,6 @@ const Lunges = () => {
         const leftAnkle = findKeypoint('left_ankle');
         const rightAnkle = findKeypoint('right_ankle');
 
-        // Check if all keypoints are detected with good confidence
         const hipDetected = (leftHip?.score > confidenceThresholdRef.current || rightHip?.score > confidenceThresholdRef.current);
         const kneeDetected = (leftKnee?.score > confidenceThresholdRef.current || rightKnee?.score > confidenceThresholdRef.current);
         const ankleDetected = (leftAnkle?.score > confidenceThresholdRef.current || rightAnkle?.score > confidenceThresholdRef.current);
@@ -206,8 +177,6 @@ const Lunges = () => {
             setFeedback('Position yourself better - make sure your full legs are visible');
             return;
         }
-
-        // Calculate knee angles to determine squat position
         let leftKneeAngle = 180;
         let rightKneeAngle = 180;
 
@@ -227,7 +196,6 @@ const Lunges = () => {
             );
         }
 
-        // Use the better detected angle or average if both are good
         let kneeAngle;
         if (leftKnee?.score > 0.5 && rightKnee?.score > 0.5) {
             kneeAngle = (leftKneeAngle + rightKneeAngle) / 2;
@@ -236,25 +204,15 @@ const Lunges = () => {
         } else if (rightKnee?.score > 0.5) {
             kneeAngle = rightKneeAngle;
         } else {
-            // Not enough data
             return;
         }
-
-        // Determine squat state
-        // Standing straight: knee angle is around 170-180 degrees
-        // Squatting: knee angle is around 90-110 degrees
         const standingThreshold = 160;
-        const squattingThreshold = 130; // Adjusted higher for better detection
-
+        const squattingThreshold = 130; 
         const currentTime = Date.now();
         const timeSinceLastRep = currentTime - lastRepTimeRef.current;
-        const minRepTime = 500; // Minimum time between reps in ms
-
-        // Determine squat state with stability counter
+        const minRepTime = 500; 
         if (countingStateRef.current === 'up' && kneeAngle < squattingThreshold) {
             stateStabilityCounterRef.current++;
-
-            // Require stability before changing state
             if (stateStabilityCounterRef.current >= 3) {
                 countingStateRef.current = 'down';
                 stateStabilityCounterRef.current = 0;
@@ -262,8 +220,6 @@ const Lunges = () => {
             }
         } else if (countingStateRef.current === 'down' && kneeAngle > standingThreshold) {
             stateStabilityCounterRef.current++;
-
-            // Require stability before counting a rep
             if (stateStabilityCounterRef.current >= 3 && timeSinceLastRep > minRepTime) {
                 countingStateRef.current = 'up';
                 stateStabilityCounterRef.current = 0;
@@ -272,82 +228,55 @@ const Lunges = () => {
                 setFeedback('Squat completed! Great job!');
             }
         } else {
-            // Reset stability counter if we're not in a consistent state
             stateStabilityCounterRef.current = 0;
         }
     };
-
-    // Calculate angle between three points (used for joint angles)
     const calculateAngle = (p1, p2, p3) => {
-        // Handle missing points
         if (!p1 || !p2 || !p3) return 180;
-
         const radians = Math.atan2(p3[1] - p2[1], p3[0] - p2[0]) -
             Math.atan2(p1[1] - p2[1], p1[0] - p2[0]);
-
         let angle = Math.abs(radians * 180.0 / Math.PI);
 
         if (angle > 180.0) {
             angle = 360.0 - angle;
         }
-
         return angle;
     };
-
-    // Draw the detected pose on canvas with improved visualization
     const drawPose = (pose) => {
         const ctx = canvasRef.current.getContext('2d');
         ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-        // Draw video frame first
         ctx.drawImage(videoRef.current, 0, 0);
 
-        // Draw keypoints
         if (pose.keypoints) {
-            // Draw connections first so they appear under the keypoints
             drawConnections(ctx, pose.keypoints);
-
-            // Draw keypoints
             pose.keypoints.forEach(keypoint => {
                 if (keypoint.score > confidenceThresholdRef.current) {
                     const { x, y } = keypoint;
-
-                    // Outer circle (white)
                     ctx.beginPath();
                     ctx.arc(x, y, 6, 0, 2 * Math.PI);
                     ctx.fillStyle = 'white';
                     ctx.fill();
-
-                    // Inner circle (colored by keypoint type)
                     ctx.beginPath();
                     ctx.arc(x, y, 4, 0, 2 * Math.PI);
 
-                    // Color based on keypoint type
                     if (keypoint.name && keypoint.name.includes('face')) {
-                        ctx.fillStyle = '#ff0000'; // Red for face
+                        ctx.fillStyle = '#ff0000'; 
                     } else if (keypoint.name && (keypoint.name.includes('shoulder') || keypoint.name.includes('hip'))) {
-                        ctx.fillStyle = '#00ff00'; // Green for torso connections
+                        ctx.fillStyle = '#00ff00'; 
                     } else if (keypoint.name && (keypoint.name.includes('elbow') || keypoint.name.includes('wrist'))) {
-                        ctx.fillStyle = '#ffff00'; // Yellow for arms
+                        ctx.fillStyle = '#ffff00'; 
                     } else if (keypoint.name && (keypoint.name.includes('knee') || keypoint.name.includes('ankle'))) {
-                        ctx.fillStyle = '#00ffff'; // Cyan for legs
+                        ctx.fillStyle = '#00ffff';
                     } else {
-                        ctx.fillStyle = '#ff00ff'; // Magenta for other
+                        ctx.fillStyle = '#ff00ff'; 
                     }
 
                     ctx.fill();
-
-                    // Draw keypoint name for debugging (uncomment if needed)
-                    // ctx.fillStyle = 'white';
-                    // ctx.font = '10px Arial';
-                    // ctx.fillText(keypoint.name, x + 10, y);
                 }
             });
         }
-
-        // Draw exercise-specific guides - improved for better visibility
         if (exercise === 'Lunges') {
-            // Draw guide for squat depth
             const findKeypoint = (name) => pose.keypoints.find(kp => kp.name === name);
             const leftHip = findKeypoint('left_hip');
             const rightHip = findKeypoint('right_hip');
@@ -358,8 +287,6 @@ const Lunges = () => {
                 ctx.strokeStyle = 'rgba(0, 255, 255, 0.6)';
                 ctx.lineWidth = 3;
                 ctx.setLineDash([5, 5]);
-
-                // Draw horizontal lines for standing and squatting positions
                 const standingPosition = hipY - 40;
                 const squattingPosition = hipY + 40;
 
@@ -373,7 +300,6 @@ const Lunges = () => {
                 ctx.lineTo(canvasRef.current.width, squattingPosition);
                 ctx.stroke();
 
-                // Label the guides
                 ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
                 ctx.font = '14px Arial';
                 ctx.fillText('STANDING', 10, standingPosition - 5);
@@ -382,8 +308,6 @@ const Lunges = () => {
                 ctx.setLineDash([]);
             }
         }
-
-        // Draw angles for debugging (helpful for understanding the rep counting logic)
         if (exercise === 'Lunges') {
             const findKeypoint = (name) => pose.keypoints.find(kp => kp.name === name);
             const leftHip = findKeypoint('left_hip');
@@ -402,17 +326,12 @@ const Lunges = () => {
                 ctx.fillText(`Knee Angle: ${angle.toFixed(0)}°`, 10, 100);
             }
         }
-
-        // Draw state and rep count with improved visibility
         ctx.font = 'bold 20px Arial';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.fillText(`State: ${countingStateRef.current.toUpperCase()}`, 10, 30);
         ctx.fillText(`Reps: ${exerciseCount}`, 10, 60);
     };
-
-    // Draw connections between keypoints for better skeleton visualization
     const drawConnections = (ctx, keypoints) => {
-        // Create a keypoint map for quick lookup
         const keypointMap = {};
         keypoints.forEach(keypoint => {
             if (keypoint.name) {
@@ -420,34 +339,27 @@ const Lunges = () => {
             }
         });
 
-        // Define connections with colors based on body parts
         const connections = [
-            // Face connections - red
             { points: ['nose', 'left_eye'], color: 'rgba(255, 0, 0, 0.8)' },
             { points: ['nose', 'right_eye'], color: 'rgba(255, 0, 0, 0.8)' },
             { points: ['left_eye', 'left_ear'], color: 'rgba(255, 0, 0, 0.8)' },
             { points: ['right_eye', 'right_ear'], color: 'rgba(255, 0, 0, 0.8)' },
 
-            // Torso connections - green
             { points: ['left_shoulder', 'right_shoulder'], color: 'rgba(0, 255, 0, 0.8)' },
             { points: ['left_shoulder', 'left_hip'], color: 'rgba(0, 255, 0, 0.8)' },
             { points: ['right_shoulder', 'right_hip'], color: 'rgba(0, 255, 0, 0.8)' },
             { points: ['left_hip', 'right_hip'], color: 'rgba(0, 255, 0, 0.8)' },
 
-            // Arm connections - yellow
             { points: ['left_shoulder', 'left_elbow'], color: 'rgba(255, 255, 0, 0.8)' },
             { points: ['left_elbow', 'left_wrist'], color: 'rgba(255, 255, 0, 0.8)' },
             { points: ['right_shoulder', 'right_elbow'], color: 'rgba(255, 255, 0, 0.8)' },
             { points: ['right_elbow', 'right_wrist'], color: 'rgba(255, 255, 0, 0.8)' },
 
-            // Leg connections - cyan
             { points: ['left_hip', 'left_knee'], color: 'rgba(0, 255, 255, 0.8)' },
             { points: ['left_knee', 'left_ankle'], color: 'rgba(0, 255, 255, 0.8)' },
             { points: ['right_hip', 'right_knee'], color: 'rgba(0, 255, 255, 0.8)' },
             { points: ['right_knee', 'right_ankle'], color: 'rgba(0, 255, 255, 0.8)' },
         ];
-
-        // Draw each connection
         connections.forEach(connection => {
             const startKeypoint = keypointMap[connection.points[0]];
             const endKeypoint = keypointMap[connection.points[1]];
@@ -464,20 +376,14 @@ const Lunges = () => {
             }
         });
     };
-
-    // Manual count button handler
     const handleManualCount = () => {
         setExerciseCount(prev => prev + 1);
         setFeedback('Squat counted manually!');
     };
-
-    // Toggle tracking state
     const toggleTracking = () => {
         setIsTracking(!isTracking);
         setFeedback(isTracking ? 'Tracking paused' : 'Tracking started');
     };
-
-    // Reset exercise stats
     const resetStats = () => {
         setExerciseCount(0);
         setFeedback('Stats reset');
@@ -485,14 +391,11 @@ const Lunges = () => {
         stateStabilityCounterRef.current = 0;
     };
 
-    // Change exercise type
     const changeExercise = (newExercise) => {
         setExercise(newExercise);
         resetStats();
         setFeedback(`Exercise changed to ${newExercise}`);
     };
-
-    // Render loading state
     const renderLoadingState = () => {
         if (loadingState !== 'ready') {
             let loadingMessage = 'Initializing...';
@@ -516,8 +419,6 @@ const Lunges = () => {
         }
         return null;
     };
-
-    // Render error state
     const renderErrorState = () => {
         if (errorMessage) {
             return (
@@ -685,7 +586,6 @@ const Lunges = () => {
                                     </>
                                 )}
 
-                                {/* Manual Mode Overlay */}
                                 {showManualMode && loadingState === 'ready' && (
                                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
                                         <div className="text-center">
@@ -696,7 +596,6 @@ const Lunges = () => {
                                 )}
                             </div>
 
-                            {/* Progress */}
                             <div className="mt-6">
                                 <h3 className="text-xl font-bold mb-2">Today's Goal</h3>
                                 <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
@@ -711,7 +610,6 @@ const Lunges = () => {
                                 </div>
                             </div>
 
-                            {/* Quick Guide */}
                             <div className="mt-6 bg-gray-700 p-4 rounded-lg">
                                 <h3 className="text-lg font-bold mb-2">Quick Troubleshooting</h3>
                                 <div className="space-y-2 text-sm text-gray-300">

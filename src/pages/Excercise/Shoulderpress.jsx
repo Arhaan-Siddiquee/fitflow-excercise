@@ -443,7 +443,7 @@ const Shoulderpress = () => {
                     <div className="absolute top-4 right-4 z-20">
                       <div className="bg-black/60 text-white px-4 py-2 rounded-lg">
                         <span className="text-3xl font-bold">{exerciseCount}</span>
-                        <span className="ml-2">Pull-ups</span>
+                        <span className="ml-2">Shoulder-Press</span>
                       </div>
                     </div>
                     
@@ -463,7 +463,7 @@ const Shoulderpress = () => {
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
                     <div className="text-center">
                       <h3 className="text-xl font-bold text-white mb-2">Manual Tracking Mode</h3>
-                      <p className="text-white mb-4">Press the button to count your pull-ups</p>
+                      <p className="text-white mb-4">Press the button to count your ShoulderPress</p>
                     </div>
                   </div>
                 )}
@@ -480,7 +480,7 @@ const Shoulderpress = () => {
                 </div>
                 <div className="flex justify-between text-sm mt-1">
                   <span>0</span>
-                  <span>Goal: 20 pull-ups</span>
+                  <span>Goal: 20 Shoulder-Press</span>
                 </div>
               </div>
               

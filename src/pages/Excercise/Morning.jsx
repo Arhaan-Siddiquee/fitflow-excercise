@@ -18,10 +18,9 @@ const Morning = () => {
 
   const poseHistoryRef = useRef([]);
   const countingStateRef = useRef('standing');
-  const confidenceThresholdRef = useRef(0.4); // Lowered threshold for better detection
+  const confidenceThresholdRef = useRef(0.4); 
   const frameCountRef = useRef(0);
   
-  // Squat-specific tracking refs
   const lastValidHipPositionRef = useRef(null);
   const squatDepthRef = useRef(0);
   const repPhaseTimerRef = useRef(null);
@@ -154,7 +153,6 @@ const Morning = () => {
   const countSquats = (pose) => {
     const findKeypoint = (name) => pose.keypoints.find(kp => kp.name === name);
     
-    // For squats, we only need to track hip and knee positions - we don't need upper body
     const leftHip = findKeypoint('left_hip');
     const rightHip = findKeypoint('right_hip');
     const leftKnee = findKeypoint('left_knee');
@@ -162,10 +160,8 @@ const Morning = () => {
     const leftAnkle = findKeypoint('left_ankle');
     const rightAnkle = findKeypoint('right_ankle');
     
-    // Only check the lower body keypoints for squats
     const keypoints = [leftHip, rightHip, leftKnee, rightKnee];
     
-    // We'll make ankle points optional - detection still works without them
     const essentialPointsDetected = keypoints.every(kp => kp && kp.score > confidenceThresholdRef.current);
     
     if (!essentialPointsDetected) {
@@ -173,50 +169,36 @@ const Morning = () => {
       return;
     }
     
-    // Calculate average hip position (midpoint between left and right hip)
     const hipY = (leftHip.y + rightHip.y) / 2;
     const hipX = (leftHip.x + rightHip.x) / 2;
     const kneeY = (leftKnee.y + rightKnee.y) / 2;
     
-    // Store valid hip position for reference
     lastValidHipPositionRef.current = { x: hipX, y: hipY };
     
-    // Determine the bottom of the frame or use ankle position if detected
     let ankleY;
     if (leftAnkle && rightAnkle && 
         leftAnkle.score > confidenceThresholdRef.current && 
         rightAnkle.score > confidenceThresholdRef.current) {
       ankleY = (leftAnkle.y + rightAnkle.y) / 2;
     } else {
-      // If ankles not visible, use a reference point near bottom of frame
       ankleY = canvasRef.current.height * 0.9;
     }
     
-    // Calculate hip-to-knee distance relative to knee-to-ankle distance
-    // This gives us a normalized measure even without seeing the full body
     const hipToKneeDistance = Math.abs(hipY - kneeY);
     const kneeToBottomDistance = Math.abs(kneeY - ankleY);
     
-    // Calculate current hip position as percentage of the range
-    // Lower number means hips are lower (deeper squat)
     const normalizedHipPosition = (ankleY - hipY) / (ankleY - kneeY);
     
-    // Updated thresholds focused on hip position relative to knees
-    const standingThreshold = 2.0; // Hip position when standing (higher number)
-    const squatThreshold = 1.5;    // Hip position at proper squat depth (lower number)
+    const standingThreshold = 2.0; 
+    const squatThreshold = 1.5;
     
-    // Calculate current squat depth as a percentage
-    // Normalize to 0-100% for visualization
     squatDepthRef.current = Math.max(0, Math.min(100, 
       100 * (1 - (normalizedHipPosition - squatThreshold) / (standingThreshold - squatThreshold))
     ));
     
-    // Standing position is when hips are high relative to knees
     const standingPosition = normalizedHipPosition > standingThreshold;
-    // Squat position is when hips are closer to knee level
     const squatPosition = normalizedHipPosition < squatThreshold;
     
-    // Logic for counting a rep - simplified without strict form checking
     if (countingStateRef.current === 'standing' && squatPosition && !isAtBottomRef.current) {
       isAtBottomRef.current = true;
       countingStateRef.current = 'squatting';
@@ -235,12 +217,9 @@ const Morning = () => {
     ctx.drawImage(videoRef.current, 0, 0);
     
     if (pose.keypoints) {
-      // Only draw the lower body connections for squats
       drawLowerBodyConnections(ctx, pose.keypoints);
       
-      // Only visualize lower body keypoints
       pose.keypoints.forEach(keypoint => {
-        // Only draw lower body keypoints
         if (keypoint.name && (
             keypoint.name.includes('hip') || 
             keypoint.name.includes('knee') || 
@@ -266,45 +245,37 @@ const Morning = () => {
       });
     }
     
-    // Draw squat depth indicator
     const height = canvasRef.current.height;
     const width = canvasRef.current.width;
     
-    // Draw reference lines for squat positions
     ctx.strokeStyle = 'aqua';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     
-    // Standing reference line (top line)
     ctx.beginPath();
     ctx.moveTo(0, height * 0.45);
     ctx.lineTo(width, height * 0.45);
     ctx.stroke();
     
-    // Squat depth reference line (bottom line)
     ctx.beginPath();
     ctx.moveTo(0, height * 0.75);
     ctx.lineTo(width, height * 0.75);
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Draw squat depth indicator
     ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
     ctx.fillRect(width - 40, height - (squatDepthRef.current / 100) * height, 30, (squatDepthRef.current / 100) * height);
     
     ctx.fillStyle = 'white';
     ctx.fillText(`${Math.round(squatDepthRef.current)}%`, width - 35, height - 10);
     
-    // Draw state text
     ctx.font = '20px Arial';
     ctx.fillStyle = 'white';
     ctx.fillText(`State: ${countingStateRef.current.toUpperCase()}`, 10, 30);
     ctx.fillText(`Reps: ${exerciseCount}`, 10, 60);
   };
 
-  // Modified to only draw lower body connections
   const drawLowerBodyConnections = (ctx, keypoints) => {
-    // Focus only on lower body connections
     const connections = [
       ['left_hip', 'right_hip'],
       ['left_hip', 'left_knee'], ['right_hip', 'right_knee'],
@@ -323,7 +294,6 @@ const Morning = () => {
       const startPoint = keypointMap[startName];
       const endPoint = keypointMap[endName];
       
-      // Only draw if both points are detected with sufficient confidence
       if (startPoint && endPoint && 
           startPoint.score > confidenceThresholdRef.current && 
           endPoint.score > confidenceThresholdRef.current) {
@@ -331,10 +301,9 @@ const Morning = () => {
         ctx.moveTo(startPoint.x, startPoint.y);
         ctx.lineTo(endPoint.x, endPoint.y);
         
-        // Highlight hip-to-knee and knee-to-ankle connections
         if ((startName.includes('hip') && endName.includes('knee')) || 
             (startName.includes('knee') && endName.includes('ankle'))) {
-          ctx.strokeStyle = '#ffcc00'; // Bright yellow for legs
+          ctx.strokeStyle = '#ffcc00'; 
           ctx.lineWidth = 4;
         } else {
           ctx.strokeStyle = 'aqua';
@@ -486,7 +455,6 @@ const Morning = () => {
             </div>
           </div>
           
-          {/* Middle & Right Column - Camera/Canvas */}
           <div className="lg:col-span-2">
             <div className="bg-gray-800 rounded-xl p-4 shadow-lg">
               <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
@@ -501,13 +469,8 @@ const Morning = () => {
                   className="absolute inset-0 w-full h-full object-cover z-10"
                 />
                 
-                {/* Render loading state */}
                 {renderLoadingState()}
-                
-                {/* Render error state */}
                 {renderErrorState()}
-                
-                {/* Overlay Elements */}
                 {loadingState === 'ready' && (
                   <>
                     <div className="absolute top-4 left-4 z-20">
@@ -515,8 +478,6 @@ const Morning = () => {
                         {isTracking ? 'Tracking Active' : 'Tracking Paused'}
                       </div>
                     </div>
-                    
-                    {/* Exercise Counter */}
                     <div className="absolute top-4 right-4 z-20">
                       <div className="bg-black/60 text-white px-4 py-2 rounded-lg">
                         <span className="text-3xl font-bold">{exerciseCount}</span>
@@ -524,7 +485,6 @@ const Morning = () => {
                       </div>
                     </div>
                     
-                    {/* Squat Depth Meter */}
                     <div className="absolute top-20 right-4 z-20">
                       <div className="bg-black/60 text-white px-2 py-2 rounded-lg text-sm">
                         <div className="text-center mb-1">Depth</div>
@@ -536,8 +496,6 @@ const Morning = () => {
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Feedback */}
                     {feedback && (
                       <div className="absolute bottom-4 left-4 right-4 z-20 text-center">
                         <div className="bg-black/60 text-white px-4 py-2 rounded-lg inline-block mx-auto">
@@ -547,8 +505,6 @@ const Morning = () => {
                     )}
                   </>
                 )}
-                
-                {/* Manual Mode Overlay */}
                 {showManualMode && loadingState === 'ready' && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
                     <div className="text-center">
@@ -558,8 +514,6 @@ const Morning = () => {
                   </div>
                 )}
               </div>
-              
-              {/* Progress */}
               <div className="mt-6">
                 <h3 className="text-xl font-bold mb-2">Today's Goal</h3>
                 <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
@@ -573,8 +527,6 @@ const Morning = () => {
                   <span>Goal: 15 squats</span>
                 </div>
               </div>
-              
-              {/* Quick Guide */}
               <div className="mt-6 bg-gray-700 p-4 rounded-lg">
                 
               </div>
