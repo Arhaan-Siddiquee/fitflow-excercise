@@ -73,15 +73,7 @@ const Navbar = () => {
             </button>
           ))}
           <ExerciseDropdown mobile />
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              navigate('/desk-exercises');
-            }}
-            className="block px-4 py-3 text-gray-700 hover:bg-gray-100 w-full text-left"
-          >
-            Desk Exercises
-          </button>
+
         </div>
       )}
     </nav>
