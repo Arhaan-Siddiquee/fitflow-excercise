@@ -4,9 +4,7 @@ import Footer from './components/Footer'
 import Dashboard from './pages/Dashboard'
 import Workout from './pages/Workout'
 import Tutorials from './pages/PersonalizedExcercise'
-import Gamify from './pages/Gamify'
 import DietPlan from './pages/DietPlan'
-import Profile from './pages/Profile'
 import Squart from './pages/Excercise/Squart'
 import Pushup from './pages/Excercise/Pushup'
 import PullUp from './pages/Excercise/Pullup'
@@ -29,7 +27,6 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/workout" element={<Workout />} />
           <Route path="/tutorials" element={<Tutorials />} />
-          <Route path="/gamify" element={<Gamify />} />
           <Route path="/diet-plan" element={<DietPlan />} />
           <Route path="/lower-body/squats" element={<Squart />} />
           <Route path="/upper-body/pushup" element={<Pushup />} />
@@ -46,6 +43,7 @@ function App() {
           <Route path="/desk/hand" element={<Hand />} />
         </Routes>
       </main>
+      <Footer />
     </div>
   )
 }

@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 
 const PersonalizedExercise = () => {
-  // State for storing the selected body part and related exercises
   const [selectedBodyPart, setSelectedBodyPart] = useState(null);
   const [exercises, setExercises] = useState([]);
 
-  // Mapping body parts to exercises and video URLs
   const exercisesMapping = {
     stomach: [
       { name: "Core Crunch", videoUrl: "https://www.youtube.com/embed/dkGwcfo9zto" },
