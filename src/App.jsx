@@ -32,7 +32,7 @@ function App() {
           <Route path="/gamify" element={<Gamify />} />
           <Route path="/diet-plan" element={<DietPlan />} />
           <Route path="/lower-body/squats" element={<Squart />} />
-          <Route path="/upper-body/push-ups" element={<Pushup />} />
+          <Route path="/upper-body/pushup" element={<Pushup />} />
           <Route path="/upper-body/pullup" element={<PullUp />} />
           <Route path="/upper-body/shoulder-press" element={<Shoulderpress />} />
           <Route path="/upper-body/bicep-curls" element={<BicepCurl />} />

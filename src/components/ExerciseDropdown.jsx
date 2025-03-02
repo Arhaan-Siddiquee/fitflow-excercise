@@ -21,9 +21,8 @@ const ExerciseDropdown = () => {
   }, []);
 
   const upperBodyExercises = [
-    { name: "Push-ups", path: "/upper-body/push-ups" },
-    { name: "--", path: "/upper-body/--" },
-    { name: "Pull-ups", path: "/upper-body/Pullup" },
+    { name: "Pushup", path: "/upper-body/pushup" },
+    { name: "Pullup", path: "/upper-body/pullup" },
     { name: "Shoulder Press", path: "/upper-body/shoulder-press" },
     { name: "Bicep Curls", path: "/upper-body/bicep-curls" },
     { name: "Front Raises", path: "/upper-body/front-raises" }
@@ -31,10 +30,8 @@ const ExerciseDropdown = () => {
 
   const lowerBodyExercises = [
     { name: "Squats", path: "/lower-body/squats" },
-    { name: "~Deadlifts", path: "/lower-body/deadlifts" },
     { name: "Lunges", path: "/lower-body/lunges" },
-    { name: "March", path: "/lower-body/morning" },
-    { name: "High Knees", path: "/lower-body/highknees" }
+    { name: "HighKnees", path: "/lower-body/highknees" }
   ];
 
   const deskExercises = [
@@ -58,9 +55,7 @@ const ExerciseDropdown = () => {
         {/* Exercises Toggle Button */}
         <button
           onClick={() => handleToggleDropdown('regular')}
-          className="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2"
-          aria-expanded={isOpen && dropdownType === 'regular'}
-          aria-haspopup="true"
+          className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
         >
           <span>Exercises</span>
           <svg
@@ -76,9 +71,7 @@ const ExerciseDropdown = () => {
         {/* Desk Exercises Toggle Button */}
         <button
           onClick={() => handleToggleDropdown('desk')}
-          className="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2"
-          aria-expanded={isOpen && dropdownType === 'desk'}
-          aria-haspopup="true"
+          className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
         >
           <span>Desk Exercises</span>
           <svg
@@ -96,44 +89,45 @@ const ExerciseDropdown = () => {
       {isOpen && (
         <div className="absolute left-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden z-50">
           {dropdownType === 'regular' && (
-            <div className="py-1">
-              {/* Upper Body Exercises */}
-              <div className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50">Upper Body</div>
-              {upperBodyExercises.map((exercise, index) => (
-                <Link
-                  key={`upper-${index}`}
-                  to={exercise.path}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {exercise.name}
-                </Link>
-              ))}
-              
-              {/* Lower Body Exercises */}
-              <div className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50">Lower Body</div>
-              {lowerBodyExercises.map((exercise, index) => (
-                <Link
-                  key={`lower-${index}`}
-                  to={exercise.path}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {exercise.name}
-                </Link>
-              ))}
+            <div className="grid grid-cols-2 gap-4 p-4">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Upper Body</h3>
+                {upperBodyExercises.map((exercise) => (
+                  <Link
+                    key={exercise.name}
+                    to={exercise.path}
+                    className="block text-sm text-gray-700 hover:bg-gray-100 py-1 px-2 rounded"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {exercise.name}
+                  </Link>
+                ))}
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Lower Body</h3>
+                {lowerBodyExercises.map((exercise) => (
+                  <Link
+                    key={exercise.name}
+                    to={exercise.path}
+                    className="block text-sm text-gray-700 hover:bg-gray-100 py-1 px-2 rounded"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {exercise.name}
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
 
           {dropdownType === 'desk' && (
-            <div className="py-1">
-              {/* Desk Exercises */}
-              <div className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50">Desk Exercises</div>
-              {deskExercises.map((exercise, index) => (
+            <div className="p-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Desk Exercises</h3>
+              {deskExercises.map((exercise) => (
                 <Link
-                  key={`desk-${index}`}
+                  key={exercise.name}
                   to={exercise.path}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block text-sm text-gray-700 hover:bg-gray-100 py-1 px-2 rounded"
                   onClick={() => setIsOpen(false)}
                 >
                   {exercise.name}
